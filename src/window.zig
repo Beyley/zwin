@@ -2,13 +2,7 @@ const std = @import("std");
 
 const wayland_enabled = true;
 
-const UnreachableBackend = struct {
-    pub fn deinit(self: UnreachableBackend) void {
-        _ = self; // autofix
-
-        unreachable;
-    }
-};
+const UnreachableBackend = struct {};
 
 pub const Window = union(enum) {
     wayland: if (wayland_enabled) @import("backends/wayland/impl.zig") else UnreachableBackend,
@@ -17,7 +11,7 @@ pub const Window = union(enum) {
 
     pub fn deinit(self: Window) void {
         switch (self) {
-            inline else => |window| window.deinit(),
+            inline else => |window| if (@TypeOf(window) == UnreachableBackend) unreachable else window.deinit(),
         }
     }
 };
