@@ -12,6 +12,14 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+    // exe.use_llvm = false;
+    // exe.use_lld = false;
+
+    //Link wayland-client on linux
+    if (target.isLinux()) {
+        exe.linkSystemLibrary("wayland-client");
+    }
+
     exe.addModule("zwin", zwin);
     b.installArtifact(exe);
     const run_cmd = b.addRunArtifact(exe);
