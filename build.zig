@@ -12,8 +12,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    // exe.use_llvm = false;
-    // exe.use_lld = false;
+    exe.linkLibC();
 
     //Link wayland-client on linux
     if (target.isLinux()) {
