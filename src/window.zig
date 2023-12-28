@@ -1,17 +1,22 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
-const wayland_enabled = true;
-
-const UnreachableBackend = struct {};
+pub const Context = switch (builtin.os.tag) {
+    .linux => union(enum) {
+        wayland: *@import("backends/wayland/impl.zig"),
+    },
+    else => @compileError("Unknown OS"),
+};
 
 pub const Window = union(enum) {
-    wayland: if (wayland_enabled) @import("backends/wayland/impl.zig") else UnreachableBackend,
+    context: Context,
 
     const TypeInfo = @typeInfo(Window);
 
+    ///Destroys all held memory and resources
     pub fn deinit(self: Window) void {
-        switch (self) {
-            inline else => |window| if (@TypeOf(window) == UnreachableBackend) unreachable else window.deinit(),
+        switch (self.context) {
+            inline else => |window| window.deinit(),
         }
     }
 };
